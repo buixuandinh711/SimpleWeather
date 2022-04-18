@@ -28,21 +28,26 @@ class MainActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
+        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        var currentLocation: String = ""
+
         val locationPermissionRequest = registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
         ) { permissions ->
             when {
                 permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
                     Log.d("xyz", "Permission granted")
+                    fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+                        currentLocation =
+                            location?.latitude.toString() + "," + location?.longitude.toString()
+                        getWeatherProperty(currentLocation)
+                    }
                 }
                 else -> {
                     Log.d("xyz", "Permission granted")
                 }
             }
         }
-
-        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        var currentLocation: String = ""
 
         if (ActivityCompat.checkSelfPermission(
                 this,
@@ -61,11 +66,6 @@ class MainActivity : AppCompatActivity() {
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 )
             )
-            fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
-                currentLocation =
-                    location?.latitude.toString() + "," + location?.longitude.toString()
-                getWeatherProperty(currentLocation)
-            }
         }
     }
 
